@@ -1,6 +1,7 @@
 import config from "config";
 import connectDB from "./db/connect";
 import express from "express";
+import { Request, Response, NextFunction } from "express";
 
 const app = express();
 
