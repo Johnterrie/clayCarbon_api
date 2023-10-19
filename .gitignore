@@ -3,3 +3,4 @@
 .env
 requests.http
 ./build
+config
