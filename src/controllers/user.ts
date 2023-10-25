@@ -19,6 +19,10 @@ interface BodyRequest extends iUser {
     email: string;
     password: string;
   };
+
+  params: {
+    userId: string;
+  };
 }
 
 export const createUser = async (
@@ -58,6 +62,106 @@ export const createUser = async (
             })
           );
         }
+      }
+    }
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      return next(
+        res.status(400).json({
+          message: "Invalid details provided.",
+        })
+      );
+    }
+    next(error);
+  }
+};
+
+/**
+ * Upadet user
+ * @param req
+ * @param res
+ * @param next
+ */
+export const updateUser = async (
+  req: BodyRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userModelValidation: iUser = await UserValidation.validateAsync(
+      req.body
+    );
+
+    if (!userModelValidation) {
+      return next(
+        new createError.BadRequest(
+          "Operation failed, invalid details provided."
+        )
+      );
+    } else {
+      const isUsernameValid = await User.findOne({
+        username: userModelValidation.username,
+      });
+      if (!isUsernameValid) {
+        res.status(404).json({
+          message: `Username ${userModelValidation.username} not valid`,
+        });
+      } else {
+        const updatedUser = await processUpdate(
+          isUsernameValid._id,
+          userModelValidation
+        );
+        if (updatedUser) {
+          res.status(201).json({
+            updatedUser,
+          });
+        } else {
+          return next(
+            res.status(400).json({
+              message: "Invalid details provided.",
+            })
+          );
+        }
+      }
+    }
+  } catch (error: any) {
+    if (error.isJoi === true) {
+      return next(
+        res.status(400).json({
+          message: "Invalid details provided.",
+        })
+      );
+    }
+    next(error);
+  }
+};
+
+export const getUser = async (
+  req: BodyRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userIdValidation = await UserIdValidation.validateAsync(
+      req.params.userId
+    );
+
+    if (!userIdValidation) {
+      return next(
+        new createError.BadRequest(
+          "Operation failed, invalid details provided."
+        )
+      );
+    } else {
+      const userDetails = await User.findById(userIdValidation);
+      if (!userDetails) {
+        res.status(404).json({
+          message: `User id not available`,
+        });
+      } else {
+        res.status(200).json({
+          userDetails,
+        });
       }
     }
   } catch (error: any) {
