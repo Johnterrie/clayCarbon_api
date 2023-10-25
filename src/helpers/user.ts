@@ -2,6 +2,12 @@ import iUser from "../types/user";
 import User from "../models/user";
 import createError from "http-errors";
 
+/**
+ * Update user
+ * @param userId
+ * @param userModelValidation
+ */
+
 export const processUpdate = async (
   userId: String,
   userModelValidation: iUser
